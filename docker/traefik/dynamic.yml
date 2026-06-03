@@ -1,0 +1,59 @@
+http:
+  routers:
+    localhost-root:
+      rule: Host(`localhost`) && Path(`/`)
+      entryPoints:
+        - web
+      service: pencatatan
+
+    localhost-pencatatan:
+      rule: Host(`localhost`) && PathPrefix(`/pencatatan`)
+      entryPoints:
+        - web
+      service: pencatatan
+
+    localhost-cetak-laporan:
+      rule: Host(`localhost`) && PathPrefix(`/cetak-laporan`)
+      entryPoints:
+        - web
+      service: cetak-laporan
+
+    localhost-notifikasi-komunikasi:
+      rule: Host(`localhost`) && PathPrefix(`/notifikasi-komunikasi`)
+      entryPoints:
+        - web
+      service: notifikasi-komunikasi
+
+    pencatatan:
+      rule: Host(`pencatatan.localhost`)
+      entryPoints:
+        - web
+      service: pencatatan
+
+    cetak-laporan:
+      rule: Host(`laporan.localhost`)
+      entryPoints:
+        - web
+      service: cetak-laporan
+
+    notifikasi-komunikasi:
+      rule: Host(`notifikasi.localhost`)
+      entryPoints:
+        - web
+      service: notifikasi-komunikasi
+
+  services:
+    pencatatan:
+      loadBalancer:
+        servers:
+          - url: http://pencatatan:80
+
+    cetak-laporan:
+      loadBalancer:
+        servers:
+          - url: http://cetak-laporan:80
+
+    notifikasi-komunikasi:
+      loadBalancer:
+        servers:
+          - url: http://notifikasi-komunikasi:80
