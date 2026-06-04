@@ -6,6 +6,18 @@ http:
         - web
       service: pencatatan
 
+    localhost-login:
+      rule: Host(`localhost`) && (PathPrefix(`/login`) || PathPrefix(`/logout`))
+      entryPoints:
+        - web
+      service: pencatatan
+
+    localhost-assets:
+      rule: Host(`localhost`) && (PathPrefix(`/css`) || PathPrefix(`/js`) || PathPrefix(`/images`) || PathPrefix(`/fonts`) || Path(`/favicon.ico`))
+      entryPoints:
+        - web
+      service: pencatatan
+
     localhost-pencatatan:
       rule: Host(`localhost`) && PathPrefix(`/pencatatan`)
       entryPoints:

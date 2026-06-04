@@ -31,6 +31,32 @@ body {
 .topbar nav { display: flex; gap: 10px; }
 .topbar a { color: #fff; padding: 8px 10px; text-decoration: none; }
 .topbar a:hover { background: #243246; border-radius: 6px; }
+.auth-actions {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+}
+.auth-actions form { margin: 0; }
+.auth-actions span {
+    color: #e2e8f0;
+    font-size: 13px;
+    margin: 0;
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.auth-actions button,
+.auth-actions .button {
+    background: #ffffff;
+    color: #101828;
+    min-height: 34px;
+    padding: 7px 11px;
+}
+.auth-actions button:hover,
+.auth-actions .button:hover {
+    background: #e2e8f0;
+}
 .page { margin: 0 auto; max-width: 1180px; padding: 28px; }
 .hero {
     align-items: center;
@@ -43,6 +69,17 @@ body {
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 22px;
+}
+.login-panel {
+    align-items: flex-start;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    display: grid;
+    gap: 20px;
+    margin: 72px auto 0;
+    max-width: 520px;
+    padding: 26px;
 }
 .eyebrow { color: var(--primary); font-size: 13px; font-weight: 700; margin: 0 0 6px; text-transform: uppercase; }
 h1 { font-size: 32px; line-height: 1.15; margin: 0; }

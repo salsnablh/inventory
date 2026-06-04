@@ -18,6 +18,17 @@
         <a href="{{ route('reports.index') }}">Cetak Laporan</a>
         <a href="{{ route('notifications.index') }}">Notifikasi</a>
     </nav>
+    <div class="auth-actions">
+        @auth
+            <span>{{ auth()->user()->name }}</span>
+            <form action="{{ route('logout') }}" method="post">
+                @csrf
+                <button type="submit">Logout</button>
+            </form>
+        @else
+            <a class="button" href="{{ route('login.google') }}">Login Google</a>
+        @endauth
+    </div>
 </header>
 
 <main class="page">
