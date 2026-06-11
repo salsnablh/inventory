@@ -17,6 +17,8 @@ class Item extends Model
         'minimum_stock',
         'location',
         'notes',
+        'photo_url',
+        'photo_public_id',
     ];
 
     public function movements()
@@ -27,5 +29,14 @@ class Item extends Model
     public function getIsLowStockAttribute(): bool
     {
         return $this->quantity <= $this->minimum_stock;
+    }
+
+    public function getPhotoThumbnailUrlAttribute(): ?string
+    {
+        if (! $this->photo_url) {
+            return null;
+        }
+
+        return str_replace('/upload/', '/upload/c_fill,w_96,h_96,q_auto,f_auto/', $this->photo_url);
     }
 }

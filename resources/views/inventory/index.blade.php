@@ -19,6 +19,20 @@
         <label>Stok Minimum <input name="minimum_stock" type="number" min="0" required value="{{ old('minimum_stock', 0) }}"></label>
         <label>Lokasi <input name="location" value="{{ old('location') }}"></label>
         <label>Catatan <textarea name="notes">{{ old('notes') }}</textarea></label>
+        <div
+            class="upload-field"
+            data-cloud-name="{{ $cloudinary['cloudName'] }}"
+            data-upload-preset="{{ $cloudinary['uploadPreset'] }}"
+        >
+            <label>Foto Barang <input id="item-photo" type="file" accept="image/*"></label>
+            <input id="photo-url" type="hidden" name="photo_url" value="{{ old('photo_url') }}">
+            <input id="photo-public-id" type="hidden" name="photo_public_id" value="{{ old('photo_public_id') }}">
+            <div class="upload-preview" id="upload-preview" @if (! old('photo_url')) hidden @endif>
+                <img id="photo-preview" src="{{ old('photo_url') }}" alt="Preview foto barang">
+                <button id="remove-photo" class="button secondary" type="button">Hapus Foto</button>
+            </div>
+            <small id="upload-status">Foto akan disimpan di Cloudinary, bukan di server aplikasi.</small>
+        </div>
         <button>Tambah</button>
     </form>
 
@@ -44,6 +58,7 @@
         <table>
             <thead>
             <tr>
+                <th>Foto</th>
                 <th>SKU</th>
                 <th>Nama</th>
                 <th>Stok</th>
@@ -56,6 +71,19 @@
             <tbody>
             @forelse ($items as $item)
                 <tr>
+                    <td>
+                        @if ($item->photo_url)
+                            <img
+                                class="item-photo"
+                                src="{{ $item->photo_thumbnail_url }}"
+                                width="58"
+                                height="58"
+                                alt="Foto {{ $item->name }}"
+                            >
+                        @else
+                            <span class="muted">-</span>
+                        @endif
+                    </td>
                     <td>{{ $item->sku }}</td>
                     <td>{{ $item->name }}</td>
                     <td><span class="{{ $item->is_low_stock ? 'badge warn' : 'badge' }}">{{ $item->quantity }} {{ $item->unit }}</span></td>
@@ -82,10 +110,88 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="7">Belum ada barang.</td></tr>
+                <tr><td colspan="8">Belum ada barang.</td></tr>
             @endforelse
             </tbody>
         </table>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const uploadField = document.querySelector('.upload-field');
+    const fileInput = document.getElementById('item-photo');
+    const photoUrlInput = document.getElementById('photo-url');
+    const photoPublicIdInput = document.getElementById('photo-public-id');
+    const previewWrap = document.getElementById('upload-preview');
+    const previewImage = document.getElementById('photo-preview');
+    const removeButton = document.getElementById('remove-photo');
+    const status = document.getElementById('upload-status');
+
+    if (!uploadField || !fileInput) {
+        return;
+    }
+
+    const cloudName = uploadField.dataset.cloudName;
+    const uploadPreset = uploadField.dataset.uploadPreset;
+
+    const setStatus = function (message, isError) {
+        status.textContent = message;
+        status.classList.toggle('error-text', Boolean(isError));
+    };
+
+    const clearPhoto = function () {
+        fileInput.value = '';
+        photoUrlInput.value = '';
+        photoPublicIdInput.value = '';
+        previewImage.removeAttribute('src');
+        previewWrap.hidden = true;
+        setStatus('Foto akan disimpan di Cloudinary, bukan di server aplikasi.', false);
+    };
+
+    removeButton.addEventListener('click', clearPhoto);
+
+    fileInput.addEventListener('change', async function () {
+        const file = fileInput.files[0];
+
+        if (!file) {
+            clearPhoto();
+            return;
+        }
+
+        if (!cloudName || !uploadPreset) {
+            clearPhoto();
+            setStatus('Isi CLOUDINARY_CLOUD_NAME dan CLOUDINARY_UPLOAD_PRESET di .env terlebih dahulu.', true);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+
+        setStatus('Mengunggah foto ke Cloudinary...', false);
+
+        try {
+            const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+            const payload = await response.json();
+
+            if (!response.ok) {
+                throw new Error(payload.error?.message || 'Upload gagal.');
+            }
+
+            photoUrlInput.value = payload.secure_url;
+            photoPublicIdInput.value = payload.public_id;
+            previewImage.src = payload.secure_url;
+            previewWrap.hidden = false;
+            setStatus('Foto berhasil tersimpan di Cloudinary.', false);
+        } catch (error) {
+            clearPhoto();
+            setStatus(error.message || 'Upload foto gagal.', true);
+        }
+    });
+});
+</script>
 @endsection

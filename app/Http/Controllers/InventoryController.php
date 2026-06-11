@@ -15,6 +15,10 @@ class InventoryController extends Controller
         return view('inventory.index', [
             'items' => Item::query()->orderBy('name')->get(),
             'movements' => StockMovement::with('item')->latest()->limit(10)->get(),
+            'cloudinary' => [
+                'cloudName' => config('services.cloudinary.cloud_name'),
+                'uploadPreset' => config('services.cloudinary.upload_preset'),
+            ],
         ]);
     }
 
@@ -28,6 +32,8 @@ class InventoryController extends Controller
             'minimum_stock' => ['required', 'integer', 'min:0'],
             'location' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'photo_url' => ['nullable', 'url', 'max:2048'],
+            'photo_public_id' => ['nullable', 'string', 'max:255'],
         ]);
 
         Item::create($data);
@@ -45,6 +51,8 @@ class InventoryController extends Controller
             'minimum_stock' => ['required', 'integer', 'min:0'],
             'location' => ['nullable', 'string', 'max:100'],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'photo_url' => ['nullable', 'url', 'max:2048'],
+            'photo_public_id' => ['nullable', 'string', 'max:255'],
         ]);
 
         $item->update($data);
